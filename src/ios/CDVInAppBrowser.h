@@ -44,6 +44,7 @@
 @property (nonatomic, assign) BOOL location;
 @property (nonatomic, assign) BOOL toolbar;
 @property (nonatomic, copy) NSString* closebuttoncaption;
+@property (nonatomic, copy) NSString* actioncaption;
 @property (nonatomic, copy) NSString* toolbarposition;
 
 @property (nonatomic, copy) NSString* presentationstyle;
@@ -72,6 +73,7 @@
 
 @property (nonatomic, strong) IBOutlet UIWebView* webView;
 @property (nonatomic, strong) IBOutlet UIBarButtonItem* closeButton;
+@property (nonatomic, strong) IBOutlet UIBarButtonItem* actionButton;
 @property (nonatomic, strong) IBOutlet UILabel* addressLabel;
 @property (nonatomic, strong) IBOutlet UIBarButtonItem* backButton;
 @property (nonatomic, strong) IBOutlet UIBarButtonItem* forwardButton;
@@ -83,10 +85,12 @@
 @property (nonatomic) NSURL* currentURL;
 
 - (void)close;
+- (void)action;
 - (void)navigateTo:(NSURL*)url;
 - (void)showLocationBar:(BOOL)show;
 - (void)showToolBar:(BOOL)show : (NSString *) toolbarPosition;
 - (void)setCloseButtonTitle:(NSString*)title;
+- (void)setActionButtonTitle:(NSString*)title;
 
 - (id)initWithUserAgent:(NSString*)userAgent prevUserAgent:(NSString*)prevUserAgent browserOptions: (CDVInAppBrowserOptions*) browserOptions;
 

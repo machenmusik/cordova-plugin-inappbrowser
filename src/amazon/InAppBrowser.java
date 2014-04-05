@@ -75,9 +75,11 @@ public class InAppBrowser extends CordovaPlugin {
     private static final String EXIT_EVENT = "exit";
     private static final String LOCATION = "location";
     private static final String HIDDEN = "hidden";
+    private static final String ACTION_EVENT = "action";
     private static final String LOAD_START_EVENT = "loadstart";
     private static final String LOAD_STOP_EVENT = "loadstop";
     private static final String LOAD_ERROR_EVENT = "loaderror";
+    private static final String ACTION_BUTTON_CAPTION = "actioncaption";
     private static final String CLOSE_BUTTON_CAPTION = "closebuttoncaption";
     private static final String CLEAR_ALL_CACHE = "clearcache";
     private static final String CLEAR_SESSION_CACHE = "clearsessioncache";
@@ -89,6 +91,7 @@ public class InAppBrowser extends CordovaPlugin {
     private boolean showLocationBar = true;
     private boolean openWindowHidden = false;
     private String buttonLabel = "Done";
+    private String actionLabel = null;
     private boolean clearAllCache= false;
     private boolean clearSessionCache=false;
 
@@ -284,6 +287,9 @@ public class InAppBrowser extends CordovaPlugin {
                     String key = option.nextToken();
                     if (key.equalsIgnoreCase(CLOSE_BUTTON_CAPTION)) {
                         this.buttonLabel = option.nextToken();
+                    } else
+                    if (key.equalsIgnoreCase(ACTION_BUTTON_CAPTION)) {
+                        this.actionLabel = option.nextToken();
                     } else {
                         Boolean value = option.nextToken().equals("no") ? Boolean.FALSE : Boolean.TRUE;
                         map.put(key, value);
@@ -497,7 +503,7 @@ public class InAppBrowser extends CordovaPlugin {
                 edittext = new EditText(cordova.getActivity());
                 RelativeLayout.LayoutParams textLayoutParams = new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
                 textLayoutParams.addRule(RelativeLayout.RIGHT_OF, 1);
-                textLayoutParams.addRule(RelativeLayout.LEFT_OF, 5);
+                textLayoutParams.addRule(RelativeLayout.LEFT_OF, (actionLabel != null) ? 7 : 5);
                 edittext.setLayoutParams(textLayoutParams);
                 edittext.setId(4);
                 edittext.setSingleLine(true);
@@ -516,12 +522,37 @@ public class InAppBrowser extends CordovaPlugin {
                     }
                 });
 
+                // Action button
+                Button action = new Button(cordova.getActivity());
+                if (actionLabel != null) {
+                    RelativeLayout.LayoutParams actionLayoutParams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT);
+                    actionLayoutParams.addRule(RelativeLayout.RIGHT_OF, 4);
+                    actionLayoutParams.addRule(RelativeLayout.LEFT_OF, 5);
+                    action.setLayoutParams(actionLayoutParams);
+                    action.setContentDescription("Action Button");
+                    action.setId(7);
+                    action.setText(actionLabel);
+                    action.setOnClickListener(new View.OnClickListener() {
+                        public void onClick(View v) {
+                            try {
+                                JSONObject obj = new JSONObject();
+                                obj.put("type", ACTION_EVENT);
+                                obj.put("url", url);
+    
+                                sendUpdate(obj, true);
+                            } catch (JSONException ex) {
+                                Log.d(LOG_TAG, "Should never happen");
+                            }
+                        }
+                    });
+                }
+                
                 // Close button
                 Button close = new Button(cordova.getActivity());
                 RelativeLayout.LayoutParams closeLayoutParams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT);
                 closeLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
                 close.setLayoutParams(closeLayoutParams);
-                forward.setContentDescription("Close Button");
+                close.setContentDescription("Close Button");
                 close.setId(5);
                 close.setText(buttonLabel);
                 close.setOnClickListener(new View.OnClickListener() {
@@ -578,6 +609,9 @@ public class InAppBrowser extends CordovaPlugin {
                 // Don't add the edit text if its been disabled
                 if (getShowLocationBar()) {
                     toolbar.addView(edittext);
+                }
+                if (actionLabel != null) {
+                    toolbar.addView(action);
                 }
                 toolbar.addView(close);
                 

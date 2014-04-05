@@ -130,6 +130,9 @@
     if (browserOptions.closebuttoncaption != nil) {
         [self.inAppBrowserViewController setCloseButtonTitle:browserOptions.closebuttoncaption];
     }
+    if (browserOptions.actioncaption != nil) {
+        [self.inAppBrowserViewController setActionButtonTitle:browserOptions.actioncaption];
+    }
     // Set Presentation Style
     UIModalPresentationStyle presentationStyle = UIModalPresentationFullScreen; // default
     if (browserOptions.presentationstyle != nil) {
@@ -576,6 +579,21 @@
     [self.toolbar setItems:items];
 }
 
+- (void)setActionButtonTitle:(NSString*)title
+{
+    // the advantage of using UIBarButtonSystemItemDone is the system will localize it for you automatically
+    // but, if you want to set this yourself, knock yourself out (we can't set the title for a system Done button, so we have to create a new one)
+    if (title != nil) {
+        self.actionButton = nil;
+        self.actionButton = [[UIBarButtonItem alloc] initWithTitle:title style:UIBarButtonItemStyleBordered target:self action:@selector(action)];
+        self.actionButton.enabled = YES;
+        
+        NSMutableArray* items = [self.toolbar.items mutableCopy];
+        [items insertObject:self.actionButton atIndex:2];
+        [self.toolbar setItems:items];
+    }
+}
+
 - (void)showLocationBar:(BOOL)show
 {
     CGRect locationbarFrame = self.addressLabel.frame;
@@ -722,6 +740,19 @@
             [[self parentViewController] dismissModalViewControllerAnimated:YES];
         }
     });
+}
+
+- (void)action
+{
+    if ((self.navigationDelegate != nil) && ([self.navigationDelegate callbackId] != nil)) {
+        // TODO: It would be more useful to return the URL the page is actually on (e.g. if it's been redirected).
+        NSString* url = [self.currentURL absoluteString];
+        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
+                                                      messageAsDictionary:@{@"type":@"action", @"url":url}];
+        [pluginResult setKeepCallback:[NSNumber numberWithBool:YES]];
+        
+        [self.navigationDelegate.commandDelegate sendPluginResult:pluginResult callbackId:[self.navigationDelegate callbackId]];
+    }
 }
 
 - (void)navigateTo:(NSURL*)url
@@ -884,6 +915,7 @@
         self.location = YES;
         self.toolbar = YES;
         self.closebuttoncaption = nil;
+        self.actioncaption = nil;
         self.toolbarposition = kInAppBrowserToolbarBarPositionBottom;
 
         self.enableviewportscale = NO;
