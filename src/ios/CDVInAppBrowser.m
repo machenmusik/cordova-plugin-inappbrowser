@@ -588,8 +588,13 @@
         self.actionButton = [[UIBarButtonItem alloc] initWithTitle:title style:UIBarButtonItemStyleBordered target:self action:@selector(action)];
         self.actionButton.enabled = YES;
         
+        UIBarButtonItem* fixedSpaceButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFixedSpace target:nil action:nil];
+        fixedSpaceButton.width = 20;
+        
         NSMutableArray* items = [self.toolbar.items mutableCopy];
-        [items insertObject:self.actionButton atIndex:2];
+        
+        [items insertObject:fixedSpaceButton atIndex:5];
+        [items insertObject:self.actionButton atIndex:6];
         [self.toolbar setItems:items];
     }
 }
