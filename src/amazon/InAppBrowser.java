@@ -281,14 +281,18 @@ public class InAppBrowser extends CordovaPlugin {
             HashMap<String, Boolean> map = new HashMap<String, Boolean>();
             StringTokenizer features = new StringTokenizer(optString, ",");
             StringTokenizer option;
+            // compensate for BAD FORM! should stay within map, not be side-effect
+            this.actionLabel = null;
             while(features.hasMoreElements()) {
                 option = new StringTokenizer(features.nextToken(), "=");
                 if (option.hasMoreElements()) {
                     String key = option.nextToken();
                     if (key.equalsIgnoreCase(CLOSE_BUTTON_CAPTION)) {
+                        // BAD FORM! (but it came this way)
                         this.buttonLabel = option.nextToken();
                     } else
                     if (key.equalsIgnoreCase(ACTION_BUTTON_CAPTION)) {
+                        // BAD FORM! (but copied from buttonLabel handling)
                         this.actionLabel = option.nextToken();
                     } else {
                         Boolean value = option.nextToken().equals("no") ? Boolean.FALSE : Boolean.TRUE;
